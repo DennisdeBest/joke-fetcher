@@ -31,9 +31,9 @@ type Api struct {
 	QueryParameters map[string]interface{} `json:"queryParams"`
 }
 
-func FetchJoke() {
+func FetchJoke() string {
 	arguments := helper.GetArguments()
-	CallApi(arguments, dataset)
+	return CallApi(arguments, dataset)
 }
 
 func GetApis(dataset []byte) Apis {
@@ -53,7 +53,7 @@ func GetApiNames(apis []Api) []string {
 	return names
 }
 
-func CallApi(arguments helper.Arguments, dataset []byte) {
+func CallApi(arguments helper.Arguments, dataset []byte) string {
 
 	name := arguments.Name
 	verbose := arguments.Verbose
@@ -104,6 +104,8 @@ func CallApi(arguments helper.Arguments, dataset []byte) {
 	if verbose {
 		fmt.Printf("%v", joke)
 	}
+
+	return joke
 }
 
 var Joke string
