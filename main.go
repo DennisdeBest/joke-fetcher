@@ -3,8 +3,8 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"joker/api"
-	"joker/helper"
+	"github.com/dennisdebest/joke-fetcher/api"
+	"github.com/dennisdebest/joke-fetcher/helper"
 )
 
 func main() {
