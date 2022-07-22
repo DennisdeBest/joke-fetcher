@@ -1,0 +1,26 @@
+{
+  "Apis": [
+    {
+      "name": "yomomma",
+      "url": "https://api.yomomma.info/",
+      "field": "joke"
+    },
+    {
+      "name": "chuck-noris",
+      "url": "https://api.chucknorris.io/jokes/random",
+      "field": "value"
+    },
+    {
+      "name": "jokeapi-single",
+      "url": "https://v2.jokeapi.dev/joke/Any",
+      "field": "joke",
+      "queryParams": {
+        "type": "single"
+      }
+    },
+    {
+      "name": "bread",
+      "url": "https://my-bao-server.herokuapp.com/api/breadpuns"
+    }
+  ]
+}
