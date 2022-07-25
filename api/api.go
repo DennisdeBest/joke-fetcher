@@ -53,6 +53,47 @@ func GetApiNames(apis []Api) []string {
 	return names
 }
 
+func CallApiByName(name string) string {
+	apiPtr, err := getApi(name, dataset)
+	if err != nil {
+		fmt.Print(err)
+	}
+	api := *apiPtr
+
+	apiUrl, err := url.Parse(api.Url)
+
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	handleQueryParameters(api.QueryParameters, apiUrl)
+
+	response, err := http.Get(apiUrl.String())
+
+	if err != nil {
+		fmt.Print(err.Error())
+		os.Exit(1)
+	}
+
+	responseData, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	field, _ := api.Field.Value()
+
+	var joke = string(responseData)
+
+	if field != nil {
+		var response map[string]interface{}
+		json.Unmarshal(responseData, &response)
+		joke = response[field.(string)].(string)
+	}
+
+	return joke
+}
+
 func CallApi(arguments helper.Arguments, dataset []byte) string {
 
 	name := arguments.Name
