@@ -20,12 +20,15 @@ import (
 //go:embed dataset/api.json
 var dataset []byte
 
+var ListApis Apis
+
 type Apis struct {
 	Apis []Api `json:"apis"`
 }
 
 type Api struct {
 	Name            string                 `json:"name"`
+	Title           string                 `json:"title"`
 	Url             string                 `json:"url"`
 	Field           null.String            `json:"field"`
 	QueryParameters map[string]interface{} `json:"queryParams"`
@@ -33,30 +36,30 @@ type Api struct {
 
 func FetchJoke() string {
 	arguments := helper.GetArguments()
-	return CallApi(arguments, dataset)
+	return CallApi(arguments)
 }
 
-func GetApis(dataset []byte) Apis {
+func GetApis() {
 	var apis Apis
 	err := json.Unmarshal(dataset, &apis)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return apis
+	ListApis = apis
 }
 
-func GetApiNames(apis []Api) []string {
+func GetApiNames() []string {
 	var names []string
-	for _, api := range apis {
+	for _, api := range ListApis.Apis {
 		names = append(names, api.Name)
 	}
 	return names
 }
 
-func CallApiByName(name string) string {
-	apiPtr, err := getApi(name, dataset)
+func CallApiByName(name string, verbose bool) string {
+	apiPtr, err := getApi(name)
 	if err != nil {
-		fmt.Print(err)
+		log.Fatal(err)
 	}
 	api := *apiPtr
 
@@ -69,11 +72,27 @@ func CallApiByName(name string) string {
 
 	handleQueryParameters(api.QueryParameters, apiUrl)
 
-	response, err := http.Get(apiUrl.String())
-
+	client := http.Client{
+		Timeout: 2 * time.Second,
+	}
+	req, err := http.NewRequest("GET", apiUrl.String(), nil)
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
+	}
+
+	req.Header = http.Header{
+		"Accept": {"application/json"},
+	}
+
+	response, err := client.Do(req)
+
+	if verbose {
+		log.Print(apiUrl.String())
+	}
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	responseData, err := ioutil.ReadAll(response.Body)
@@ -91,68 +110,21 @@ func CallApiByName(name string) string {
 		joke = response[field.(string)].(string)
 	}
 
+	if verbose {
+		log.Print(joke)
+	}
+
 	return joke
 }
 
-func CallApi(arguments helper.Arguments, dataset []byte) string {
+func CallApi(arguments helper.Arguments) string {
 
 	name := arguments.Name
 	verbose := arguments.Verbose
 
-	apiPtr, err := getApi(name, dataset)
-	if err != nil {
-		fmt.Print(err)
-	}
-	api := *apiPtr
-
-	if verbose {
-		fmt.Printf("Api name : %v \n", api.Name)
-	}
-
-	apiUrl, err := url.Parse(api.Url)
-
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
-
-	handleQueryParameters(api.QueryParameters, apiUrl)
-
-	response, err := http.Get(apiUrl.String())
-
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
-
-	responseData, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	field, _ := api.Field.Value()
-
-	var joke = string(responseData)
-
-	if field != nil {
-		var response map[string]interface{}
-		json.Unmarshal(responseData, &response)
-		joke = response[field.(string)].(string)
-	}
-
-	Joke = joke
-
-	if verbose {
-		fmt.Printf("%v", joke)
-	}
+	joke := CallApiByName(name, verbose)
 
 	return joke
-}
-
-var Joke string
-
-func GetJoke() string {
-	return Joke
 }
 
 func handleQueryParameters(queryParameters map[string]interface{}, apiUrl *url.URL) {
@@ -163,20 +135,20 @@ func handleQueryParameters(queryParameters map[string]interface{}, apiUrl *url.U
 	apiUrl.RawQuery = params.Encode()
 }
 
-func getApi(name string, dataset []byte) (*Api, error) {
-	apis := GetApis(dataset).Apis
-	names := GetApiNames(apis)
+func getApi(name string) (*Api, error) {
+	GetApis()
+	names := GetApiNames()
 
 	var api Api
 	if name != "" {
 		if !slices.Contains(names, name) {
 			return nil, errors.New(fmt.Sprintf("%v is not an available API, available ones are : %v\n", name, names))
 		} else {
-			apiPointer, _ := getApiByName(apis, name)
+			apiPointer, _ := getApiByName(ListApis.Apis, name)
 			api = *apiPointer
 		}
 	} else {
-		api = getRandomApi(apis)
+		api = getRandomApi(ListApis.Apis)
 	}
 
 	return &api, nil
