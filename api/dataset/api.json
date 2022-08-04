@@ -1,16 +1,25 @@
 {
   "Apis": [
     {
+      "title":"Yo Momma",
       "name": "yomomma",
       "url": "https://api.yomomma.info/",
       "field": "joke"
     },
     {
+      "title": "Chuck Noris",
       "name": "chuck-noris",
       "url": "https://api.chucknorris.io/jokes/random",
       "field": "value"
     },
     {
+      "title": "Dad Joke",
+      "name": "dad-jokes",
+      "url": "https://icanhazdadjoke.com/",
+      "field": "joke"
+    },
+    {
+      "title": "Joke API",
       "name": "jokeapi-single",
       "url": "https://v2.jokeapi.dev/joke/Any",
       "field": "joke",
@@ -19,6 +28,7 @@
       }
     },
     {
+      "title": "Bread",
       "name": "bread",
       "url": "https://my-bao-server.herokuapp.com/api/breadpuns"
     }
