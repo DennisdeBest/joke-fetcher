@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	api.FetchJoke()
-	fmt.Println(api.Joke)
+	joke := api.FetchJoke()
+	fmt.Println(joke)
 }
 
 func init() {
