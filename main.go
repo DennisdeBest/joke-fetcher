@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/dennisdebest/joke-fetcher/api"
 	"github.com/dennisdebest/joke-fetcher/helper"
+	"math/rand"
+	"time"
 )
 
 func main() {
@@ -13,5 +15,6 @@ func main() {
 }
 
 func init() {
+	rand.Seed(time.Now().Unix())
 	helper.DefineArguments()
 }

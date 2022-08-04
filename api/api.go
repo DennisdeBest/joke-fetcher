@@ -21,6 +21,7 @@ import (
 var dataset []byte
 
 var ListApis Apis
+var LatestApiUrl string
 
 type Apis struct {
 	Apis []Api `json:"apis"`
@@ -75,7 +76,10 @@ func CallApiByName(name string, verbose bool) string {
 	client := http.Client{
 		Timeout: 2 * time.Second,
 	}
-	req, err := http.NewRequest("GET", apiUrl.String(), nil)
+
+	LatestApiUrl = apiUrl.String()
+
+	req, err := http.NewRequest("GET", LatestApiUrl, nil)
 	if err != nil {
 		fmt.Print(err.Error())
 		os.Exit(1)
@@ -88,7 +92,7 @@ func CallApiByName(name string, verbose bool) string {
 	response, err := client.Do(req)
 
 	if verbose {
-		log.Print(apiUrl.String())
+		log.Print(LatestApiUrl)
 	}
 
 	if err != nil {
@@ -155,7 +159,6 @@ func getApi(name string) (*Api, error) {
 }
 
 func getRandomApi(apis []Api) Api {
-	rand.Seed(time.Now().Unix())
 	n := rand.Int() % len(apis)
 	return apis[n]
 }
