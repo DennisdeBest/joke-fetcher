@@ -10,7 +10,10 @@ import (
 )
 
 func main() {
-	joke := api.FetchJoke()
+	joke, err := api.FetchJoke()
+	if err != nil {
+		fmt.Println("error", err)
+	}
 	fmt.Println(joke)
 }
 

@@ -35,9 +35,10 @@ type Api struct {
 	QueryParameters map[string]interface{} `json:"queryParams"`
 }
 
-func FetchJoke() string {
+func FetchJoke() (string, error) {
 	arguments := helper.GetArguments()
-	return CallApi(arguments)
+	joke, err := CallApi(arguments)
+	return joke, err
 }
 
 func GetApis() {
@@ -57,7 +58,7 @@ func GetApiNames() []string {
 	return names
 }
 
-func CallApiByName(name string, verbose bool) string {
+func CallApiByName(name string, verbose bool) (string, error) {
 	apiPtr, err := getApi(name)
 	if err != nil {
 		log.Fatal(err)
@@ -80,16 +81,20 @@ func CallApiByName(name string, verbose bool) string {
 	LatestApiUrl = apiUrl.String()
 
 	req, err := http.NewRequest("GET", LatestApiUrl, nil)
-	if err != nil {
-		fmt.Print(err.Error())
-		os.Exit(1)
-	}
 
 	req.Header = http.Header{
 		"Accept": {"application/json"},
 	}
 
 	response, err := client.Do(req)
+
+	if err != nil {
+		if os.IsTimeout(err) {
+			return "", err
+		} else {
+			log.Fatal(err.Error())
+		}
+	}
 
 	if verbose {
 		log.Print(LatestApiUrl)
@@ -118,17 +123,20 @@ func CallApiByName(name string, verbose bool) string {
 		log.Print(joke)
 	}
 
-	return joke
+	return joke, nil
 }
 
-func CallApi(arguments helper.Arguments) string {
+func CallApi(arguments helper.Arguments) (string, error) {
 
 	name := arguments.Name
 	verbose := arguments.Verbose
 
-	joke := CallApiByName(name, verbose)
+	joke, err := CallApiByName(name, verbose)
 
-	return joke
+	if err != nil {
+		return "", err
+	}
+	return joke, nil
 }
 
 func handleQueryParameters(queryParameters map[string]interface{}, apiUrl *url.URL) {
