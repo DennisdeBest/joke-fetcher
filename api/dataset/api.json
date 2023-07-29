@@ -28,9 +28,9 @@
       }
     },
     {
-      "title": "Bread",
-      "name": "bread",
-      "url": "https://my-bao-server.herokuapp.com/api/breadpuns"
+      "title": "15Dkatz Programming",
+      "name": "15dkatz-programming",
+      "url": "https://official-joke-api.appspot.com/jokes/programming/random"
     }
   ]
 }
